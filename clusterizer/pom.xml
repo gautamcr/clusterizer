@@ -3,4 +3,11 @@
   <groupId>com.dsto.ei</groupId>
   <artifactId>clusterizer</artifactId>
   <version>0.0.1-SNAPSHOT</version>
+  <dependencies>
+  	<dependency>
+  		<groupId>org.jgroups</groupId>
+  		<artifactId>jgroups</artifactId>
+  		<version>3.0.11.Final</version>
+  	</dependency>
+  </dependencies>
 </project>
