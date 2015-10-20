@@ -35,7 +35,7 @@ public class Clusterizer
 			channel.setName(channelName);
 			channel.setReceiver(this);
 			channel.connect(clusterName);
-			numLocalInstances = getNumLocalInstances(channel) ;	
+			numLocalInstances = getNumLocalInstances() ;	
 			
 		} catch (UnknownHostException e) {
 			e.printStackTrace();
@@ -44,7 +44,7 @@ public class Clusterizer
 		}		
 	}
 	
-	private int getNumLocalInstances(JChannel channel2) {
+	private int getNumLocalInstances() {
 		java.util.List<Address> members = channel.getView().getMembers() ;
 		int instances = 0 ;
 
