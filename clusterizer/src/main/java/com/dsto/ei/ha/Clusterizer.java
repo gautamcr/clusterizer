@@ -17,7 +17,6 @@ public class Clusterizer
 {
 
 	private final String clusterName ;
-	private int numLocalInstances ;
 	private View view = null;
 	private String channelName ;
 	private JChannel channel;
@@ -34,8 +33,7 @@ public class Clusterizer
 			this.channel = new JChannel("udp.xml") ;
 			channel.setName(channelName);
 			channel.setReceiver(this);
-			channel.connect(clusterName);
-			numLocalInstances = getNumLocalInstances() ;	
+			channel.connect(clusterName);	
 			
 		} catch (UnknownHostException e) {
 			e.printStackTrace();
@@ -44,7 +42,7 @@ public class Clusterizer
 		}		
 	}
 	
-	private int getNumLocalInstances() {
+	public int numLocalInstances() {
 		java.util.List<Address> members = channel.getView().getMembers() ;
 		int instances = 0 ;
 
@@ -58,16 +56,14 @@ public class Clusterizer
 		}
 		return instances;
 	}
-
+	
 	public int numInstances() {
-		if( view != null ) {
-			return view.size() ;
-		}
-		return 0;
+		java.util.List<Address> members = channel.getView().getMembers() ;
+		return members.size();
 	}
 
-	public int numLocalInstances() {
-		return numLocalInstances;
+	public String getName() {
+		return channelName;
 	}
 	
 	@Override
@@ -79,16 +75,12 @@ public class Clusterizer
 	public boolean isPrimary() {
 		String creator = view.getCreator().toString() ;
 		if( creator.equals(channelName) ) {
-			System.out.println( channelName + ": creator=true" ) ;
 			return true ;
-		}
-		else {
-			System.out.println( channelName + ": creator=false" ) ;
 		}
 		return false ;
 	}
 	
-	public void close() {
+	public void exitCluster() {
 		channel.close();
 	}
 
@@ -96,6 +88,7 @@ public class Clusterizer
 		private int allowedLocalInstances = 1;
 		private int allowedTotalInstances = 1 ;
 		private String clusterName ;
+		private boolean withRandomBounce = false;
 		
 		public ClusterBuilder() {
 		}
@@ -115,6 +108,11 @@ public class Clusterizer
 			return this;
 		}
 		
+		public ClusterBuilder withRandomBounce( boolean b) {
+			this.withRandomBounce = b ;
+			return this ;
+		}
+		
 		public Clusterizer build() throws Exception {
 			Clusterizer c = new Clusterizer(this) ;
 			if( c.numLocalInstances() > this.allowedLocalInstances) {
@@ -130,5 +128,9 @@ public class Clusterizer
 		}
 		
 	}
+
+	
+
+	
 
 }

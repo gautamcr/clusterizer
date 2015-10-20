@@ -5,4 +5,6 @@ public interface IClusterizer {
 	public int numInstances() ;
 	public int numLocalInstances() ;
 	public boolean isPrimary() ;
+	public String getName() ;
+	public void exitCluster() ;
 }

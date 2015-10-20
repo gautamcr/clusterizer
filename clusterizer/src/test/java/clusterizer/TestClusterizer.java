@@ -1,7 +1,5 @@
 package clusterizer;
 
-import static org.junit.Assert.*;
-
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -46,18 +44,27 @@ public class TestClusterizer implements Callable<String> {
 	public String call() throws Exception {	
 		
 		try {
+			// Build the Clusterizer and join the cluster
 			Clusterizer c = new Clusterizer.ClusterBuilder()
 					.withClusterName("testCluster")
 					.withAllowedLocalInstances(3)
 					.withAllowedTotalInstances(4)
+					.withRandomBounce(false)
 					.build() ;
+			
+			// Wait till I become the primary
 			while( !c.isPrimary()) {
-				System.out.println("Not primary, sleeping 10s");
+				System.out.println( c.getName() + ": Not primary, sleeping 10s");
 				Thread.sleep(5*1000);
 			}
-			System.out.println("Primary! Off to work!");
-			eventLoop() ;
-			c.close(); ; 
+			
+			// I am now the primary, do some useful work!
+			System.out.println(c.getName() + ": Primary! Off to work!");
+			eventLoop() ; // this could potentially be a 24x7x365 job
+			
+			// Exit the cluster if done.
+			c.exitCluster();
+			
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		} 

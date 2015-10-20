@@ -15,4 +15,12 @@
   		<version>4.12</version>
   	</dependency>
   </dependencies>
+  <build>
+  <plugins>
+  <plugin>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <configuration><argLine>-Djava.net.preferIPv4Stack=true</argLine></configuration>
+  </plugin>
+  </plugins>
+  </build>
 </project>
