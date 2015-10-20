@@ -9,7 +9,7 @@ This project uses JGroups internally to create and manage clusters.
 
 Example code:
 
-try {
+		try {
 			// Build the Clusterizer and join the cluster
 			Clusterizer c = new Clusterizer.ClusterBuilder()
 					.withClusterName("testCluster")
@@ -37,3 +37,4 @@ try {
 		catch( Exception e) {	
 			e.printStackTrace();
 		}
+	
