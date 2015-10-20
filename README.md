@@ -20,7 +20,7 @@ Example code:
 			
 			// Wait till I become the primary
 			while( !c.isPrimary()) {
-				System.out.println( c.getName() + ": Not primary, sleeping 10s");
+				System.out.println( c.getName() + ": Not primary, sleeping 5s");
 				Thread.sleep(5*1000);
 			}
 			
