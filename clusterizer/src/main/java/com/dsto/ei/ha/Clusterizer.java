@@ -1,7 +1,13 @@
 package com.dsto.ei.ha;
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+
+import org.jgroups.Address;
+import org.jgroups.JChannel;
 import org.jgroups.ReceiverAdapter;
 import org.jgroups.View;
+import org.jgroups.util.UUID;
 
 import com.dsto.ei.ha.IClusterizer;
 
@@ -11,21 +17,49 @@ public class Clusterizer
 {
 
 	private final String clusterName ;
-	private final int allowedLocalInstances ;
+	private int numLocalInstances ;
 	private View view = null;
+	private String channelName ;
+	private JChannel channel;
+	private String hostName ;
 	
 	private Clusterizer (ClusterBuilder cb) {
 		this.clusterName = cb.clusterName ;
-		this.allowedLocalInstances = cb.allowedLocalInstances ;
+		InetAddress my_addr;
+		try {
+			my_addr = InetAddress.getLocalHost();
+			hostName = my_addr.getHostName() ;
+			this.channelName = hostName + "." + 
+					(new java.util.Random()).nextInt(10000) ;
+			this.channel = new JChannel("udp.xml") ;
+			channel.setName(channelName);
+			channel.setReceiver(this);
+			channel.connect(clusterName);
+			numLocalInstances = getNumLocalInstances(channel) ;	
+			
+		} catch (UnknownHostException e) {
+			e.printStackTrace();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}		
 	}
 	
-	public void joinCluster() {
-		// TODO Auto-generated method stub
+	private int getNumLocalInstances(JChannel channel2) {
+		java.util.List<Address> members = channel.getView().getMembers() ;
+		int instances = 0 ;
 
+		java.util.Iterator<Address> it = members.iterator() ;
+		while (it.hasNext() ) {
+			Address addr = it.next() ;
+			UUID uuid = (UUID) addr ;
+			if( uuid.toString().startsWith(hostName) ) {
+				instances++ ;
+			}
+		}
+		return instances;
 	}
 
 	public int numInstances() {
-		// TODO Auto-generated method stub
 		if( view != null ) {
 			return view.size() ;
 		}
@@ -33,8 +67,7 @@ public class Clusterizer
 	}
 
 	public int numLocalInstances() {
-		// TODO Auto-generated method stub
-		return 0;
+		return numLocalInstances;
 	}
 	
 	@Override
@@ -44,12 +77,24 @@ public class Clusterizer
 	}
 
 	public boolean isPrimary() {
-		// TODO Auto-generated method stub
-		return false;
+		String creator = view.getCreator().toString() ;
+		if( creator.equals(channelName) ) {
+			System.out.println( channelName + ": creator=true" ) ;
+			return true ;
+		}
+		else {
+			System.out.println( channelName + ": creator=false" ) ;
+		}
+		return false ;
 	}
 	
+	public void close() {
+		channel.close();
+	}
+
 	public static class ClusterBuilder {
-		private int allowedLocalInstances;
+		private int allowedLocalInstances = 1;
+		private int allowedTotalInstances = 1 ;
 		private String clusterName ;
 		
 		public ClusterBuilder() {
@@ -65,8 +110,23 @@ public class Clusterizer
 			return this ;
 		}
 		
-		public Clusterizer build() {
-			return new Clusterizer( this);
+		public ClusterBuilder withAllowedTotalInstances( int n) {
+			this.allowedTotalInstances = n ;
+			return this;
+		}
+		
+		public Clusterizer build() throws Exception {
+			Clusterizer c = new Clusterizer(this) ;
+			if( c.numLocalInstances() > this.allowedLocalInstances) {
+				throw new Exception("numLocalInstances exceeds allowedLocalInstances: " 
+						+ c.numLocalInstances() + "/" + this.allowedLocalInstances) ;
+			}
+			
+			if( c.numInstances() > this.allowedTotalInstances) {
+				throw new Exception("allowedTotalInstances exceeds numInstances: " 
+						+ c.numInstances() + "/" + this.allowedTotalInstances) ;
+			}
+			return c;
 		}
 		
 	}
