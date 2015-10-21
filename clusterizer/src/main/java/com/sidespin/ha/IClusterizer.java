@@ -1,4 +1,4 @@
-package com.dsto.ei.ha;
+package com.sidespin.ha;
 
 public interface IClusterizer {
 

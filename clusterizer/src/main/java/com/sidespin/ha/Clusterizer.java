@@ -1,4 +1,4 @@
-package com.dsto.ei.ha;
+package com.sidespin.ha;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -9,7 +9,7 @@ import org.jgroups.ReceiverAdapter;
 import org.jgroups.View;
 import org.jgroups.util.UUID;
 
-import com.dsto.ei.ha.IClusterizer;
+import com.sidespin.ha.IClusterizer;
 
 public class Clusterizer 
 	extends ReceiverAdapter 

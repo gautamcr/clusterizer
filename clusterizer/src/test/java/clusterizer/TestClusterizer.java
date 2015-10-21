@@ -7,7 +7,7 @@ import java.util.concurrent.Future;
 
 import org.junit.Test;
 
-import com.dsto.ei.ha.Clusterizer;
+import com.sidespin.ha.Clusterizer;
 
 public class TestClusterizer implements Callable<String> {
 
